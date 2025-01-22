@@ -20,11 +20,6 @@ def process_input(input_data):
 
 def swap_face(source_file, target_file, doFaceEnhancer):
     try:
-        # Process inputs - handle both URLs and direct images
-        source_file = process_input(source_file)
-        target_file = process_input(target_file)
-        
-        # Save processed images
         source_path = "input.jpg"
         target_path = "target.jpg"
         
@@ -34,7 +29,6 @@ def swap_face(source_file, target_file, doFaceEnhancer):
         source_image.save(source_path)
         target_image.save(target_path)
 
-        # Configure roop globals
         roop.globals.source_path = source_path
         roop.globals.target_path = target_path
         output_path = "output.jpg"
@@ -51,12 +45,10 @@ def swap_face(source_file, target_file, doFaceEnhancer):
         roop.globals.execution_providers = decode_execution_providers(["cuda"])
         roop.globals.execution_threads = suggest_execution_threads()
 
-        # Verify processors
         for frame_processor in get_frame_processors_modules(roop.globals.frame_processors):
             if not frame_processor.pre_check():
                 raise Exception("Frame processor pre-check failed")
 
-        # Process face swap
         start()
         return output_path
 
@@ -64,7 +56,6 @@ def swap_face(source_file, target_file, doFaceEnhancer):
         print(f"Error during face swap: {str(e)}")
         raise gr.Error(f"Face swap failed: {str(e)}")
 
-# Gradio interface setup
 app = gr.Blocks()
 with app:
     gr.HTML("<div><h1>Welcome to the NSFW Face Swap & API</h1></div>")
@@ -73,8 +64,8 @@ with app:
     gr.Interface(
         fn=swap_face,
         inputs=[
-            gr.Image(label="Source Image", source="upload", type="numpy"),
-            gr.Image(label="Target Image", source="upload", type="numpy"),
+            gr.Image(label="Source Image", type="numpy"),
+            gr.Image(label="Target Image", type="numpy"),
             gr.Checkbox(label="Face Enhancer", info="Enable face enhancement")
         ],
         outputs="image"
