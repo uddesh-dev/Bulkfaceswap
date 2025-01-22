@@ -16,7 +16,7 @@ from io import BytesIO
 import time
 import threading
 
-# Add a semaphore to limit concurrent processing
+# Add a semaphore to limit concurrent processing - keep this for roop function level concurrency control
 processing_semaphore = threading.Semaphore(5)
 
 def load_image_from_url(url):
@@ -28,10 +28,10 @@ def load_image_from_url(url):
         return None
 
 def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer):
-    # Acquire semaphore with timeout
+    # Acquire semaphore with timeout - keep this to limit concurrent roop processing
     if not processing_semaphore.acquire(timeout=60):  # 60 second timeout
         raise gr.Error("Server is busy. Please try again in a few minutes.")
-    
+
     try:
         # Handle source image
         source_file = None
@@ -39,14 +39,14 @@ def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer
             source_file = source_input
         elif source_url:
             source_file = load_image_from_url(source_url)
-        
+
         # Handle target image
         target_file = None
         if target_input is not None:
             target_file = target_input
         elif target_url:
             target_file = load_image_from_url(target_url)
-        
+
         if source_file is None or target_file is None:
             return None
 
@@ -60,18 +60,18 @@ def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer
         source_image.save(source_path)
         target_image = Image.fromarray(target_file)
         target_image.save(target_path)
-        
+
         roop.globals.source_path = source_path
         roop.globals.target_path = target_path
         roop.globals.output_path = normalize_output_path(
             roop.globals.source_path, roop.globals.target_path, output_path
         )
-        
+
         if doFaceEnhancer:
             roop.globals.frame_processors = ["face_swapper", "face_enhancer"]
         else:
             roop.globals.frame_processors = ["face_swapper"]
-            
+
         roop.globals.headless = True
         roop.globals.keep_fps = True
         roop.globals.keep_audio = True
@@ -82,11 +82,11 @@ def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer
         roop.globals.max_memory = suggest_max_memory()
         roop.globals.execution_providers = decode_execution_providers(["cuda"])
         roop.globals.execution_threads = suggest_execution_threads()
-        
+
         for frame_processor in get_frame_processors_modules(roop.globals.frame_processors):
             if not frame_processor.pre_check():
                 return None
-        
+
         start()
 
         # Clean up temporary files
@@ -105,10 +105,10 @@ def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer
 html_section_1 = "<div><h1>Welcome to the NSFW Face Swap & API</h1></div>"
 html_section_2 = '''<div>
     <p>Upload your source and target images to swap faces. Optionally, use the face enhancer feature for HD Results.</p>
-    <h2><br /><strong>For fast bulk swap and API visit:</strong>&nbsp;
+    <h2><br /><strong>For fast bulk swap and API visit:</strong> 
     <a href="https://picfy.xyz/" target="_blank" rel="noopener">https://picfy.xyz/</a><br />
     <strong>Support me USDT (TRC-20): TAe7hsSVWtMEYz3G5V1UiUdYPQVqm28bKx</h2></div>
-    <br>Start Face Swap SaaS on WordPress:</strong>&nbsp;
+    <br>Start Face Swap SaaS on WordPress:</strong> 
     <a href="https://www.codester.com/aheed/" target="_blank" rel="noopener">https://www.codester.com/aheed/</a>'''
 
 with gr.Blocks() as app:
@@ -124,7 +124,6 @@ with gr.Blocks() as app:
                     gr.Checkbox(label="face_enhancer?", info="do face enhancer?")
                 ],
                 outputs="image",
-                concurrency_limit=5
             )
         with gr.Tab("Image URLs"):
             interface2 = gr.Interface(
@@ -135,8 +134,7 @@ with gr.Blocks() as app:
                     gr.Checkbox(label="face_enhancer?", info="do face enhancer?")
                 ],
                 outputs="image",
-                concurrency_limit=5
             )
 
 if __name__ == "__main__":
-    app.queue(concurrency_count=5).launch()
+    app.queue(default_concurrency_limit=10).launch() # Increased default_concurrency_limit to 10
