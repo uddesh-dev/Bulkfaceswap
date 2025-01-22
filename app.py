@@ -103,8 +103,8 @@ with app:
                 ],
                 outputs="image"
             )
-    # Adding the queue with a concurrency limit of 10
-    app.queue(concurrency_limit=10)
+    # Add a global queue with a concurrency limit of 10
+    app.queue(default_concurrency_limit=10)
 
 # Launch the app
 app.launch()
