@@ -1,14 +1,13 @@
 ---
-title: NSFW Face Swap
+title: Bulk Face Swap
 emoji: 📈
 colorFrom: gray
 colorTo: pink
 sdk: gradio
-sdk_version: 4.37.1
+sdk_version: 5.12.0
 app_file: app.py
 pinned: false
 license: agpl-3.0
-duplicated_from: ezioruan/roop
 tags:
 - not-for-all-audiences
 ---
