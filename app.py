@@ -13,6 +13,7 @@ import os
 from PIL import Image
 import requests
 from io import BytesIO
+
 def load_image_from_url(url):
     try:
         response = requests.get(url)
@@ -20,6 +21,7 @@ def load_image_from_url(url):
         return np.array(img)
     except:
         return None
+
 def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer):
     # Handle source image
     source_file = None
@@ -71,9 +73,12 @@ def swap_face(source_input, target_input, source_url, target_url, doFaceEnhancer
 
     start()
     return output_path
+
 html_section_1 = "<div><h1>Welcome to the NSFW Face Swap & API</h1></div>"
 html_section_2 = '<div><p>Upload your source and target images to swap faces. Optionally, use the face enhancer feature for HD Results.</p><h2><br /><strong>For fast bulk swap and API visit:</strong>&nbsp;<a href="https://picfy.xyz/" target="_blank" rel="noopener">https://picfy.xyz/</a><br /> <strong>Support me USDT (TRC-20): TAe7hsSVWtMEYz3G5V1UiUdYPQVqm28bKx</h2></div><br>Start Face Swap SaaS on WordPress:</strong>&nbsp;<a href="https://www.codester.com/aheed/" target="_blank" rel="noopener">https://www.codester.com/aheed/</a>'
+
 app = gr.Blocks()
+
 with app:
     gr.HTML(html_section_1)
     gr.HTML(html_section_2)
@@ -98,4 +103,8 @@ with app:
                 ],
                 outputs="image"
             )
+    # Adding the queue with a concurrency limit of 10
+    app.queue(concurrency_limit=10)
+
+# Launch the app
 app.launch()
