@@ -111,14 +111,12 @@ html_section_2 = '''<div>
     <br>Start Face Swap SaaS on WordPress:</strong>&nbsp;
     <a href="https://www.codester.com/aheed/" target="_blank" rel="noopener">https://www.codester.com/aheed/</a>'''
 
-app = gr.Blocks()
-
-with app:
+with gr.Blocks() as app:
     gr.HTML(html_section_1)
     gr.HTML(html_section_2)
     with gr.Tabs():
         with gr.Tab("Upload Images"):
-            gr.Interface(
+            interface1 = gr.Interface(
                 fn=lambda s, t, d: swap_face(s, t, None, None, d),
                 inputs=[
                     gr.Image(label="Source Image"),
@@ -126,11 +124,10 @@ with app:
                     gr.Checkbox(label="face_enhancer?", info="do face enhancer?")
                 ],
                 outputs="image",
-                concurrency_limit=5,
-                queue=True
+                concurrency_limit=5
             )
         with gr.Tab("Image URLs"):
-            gr.Interface(
+            interface2 = gr.Interface(
                 fn=lambda s, t, d: swap_face(None, None, s, t, d),
                 inputs=[
                     gr.Textbox(label="Source Image URL"),
@@ -138,8 +135,7 @@ with app:
                     gr.Checkbox(label="face_enhancer?", info="do face enhancer?")
                 ],
                 outputs="image",
-                concurrency_limit=5,
-                queue=True
+                concurrency_limit=5
             )
 
 if __name__ == "__main__":
